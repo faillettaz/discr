@@ -4,17 +4,20 @@
 # @param tz force a time zone (most time computations are relative so getting the time zone right probably does not matter)
 image_time <- function(files, tz="UTC") {
   # get date and times from EXIF data
-  chunkSize <- 500
-  dateTime <- c()
-  for (i in seq(1, length(files), by=chunkSize)) {
-    # message(i, " ", i+chunkSize-1)
-    command <- stringr::str_c("exif -t=DateTimeOriginal -m \"", stringr::str_c(na.omit(files[i:(i+chunkSize-1)]), collapse="\" \""), "\"")
-    # TODO use the 0x9291 or SubSecTimeOriginal tags too?
-    dateTime <- c(dateTime, system(command, intern=TRUE))
-  }
+#  chunkSize <- 500
+#  dateTime <- c()
+#  for (i in seq(1, length(files), by=chunkSize)) {
+#    # message(i, " ", i+chunkSize-1)
+#    command <- stringr::str_c("exif -t=DateTimeOriginal -m \"", stringr::str_c(na.omit(files[i:(i+chunkSize-1)]), collapse="\" \""), "\"")
+#    # TODO use the 0x9291 or SubSecTimeOriginal tags too?
+#    dateTime <- c(dateTime, system(command, intern=TRUE))
+#  }
+  dateTime <- read_exif(files, tags = 'DateTimeOriginal')
 
   # convert them to R representation
-  dateTime <- lubridate::parse_date_time(dateTime, orders="ymdHMS", tz=tz)
+#  dateTime <- lubridate::parse_date_time(dateTime, orders="ymdHMS", tz=tz)
+  dateTime <- lubridate::parse_date_time(dateTime$DateTimeOriginal, orders="ymdHMS", tz=tz)
+
   order <- order(dateTime)
   dateTime <- dateTime[order]
 
